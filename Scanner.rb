@@ -20,7 +20,12 @@ module Threshold
     Enumerable.instance_methods.each do |name|
       define_method(name) do |*args, &block|
         if name != :lazy
-          @wrapper.lazy.send(name, *args, &block)
+          if name == :take
+            res = @wrapper.lazy.send(name, *args, &block).to_a
+            if  res.length == 1 then res[0] else res end
+          else
+            @wrapper.lazy.send(name, *args, &block)
+          end
         end
       end
     end
@@ -37,31 +42,27 @@ module Threshold
     end
 
     def get_next_char
-        @last_char = @in.read(1)
+      @last_char = @in.read(1)
 
-        if @last_char == nil
-          self.handle_eof
-        end
+      if @last_char == nil
+        self.handle_eof
+      end
 
 
-        if @last_char == '\n'
-            @line += 1
-            @column = 0
-        else
-          @column += 1
-        end
+      if @last_char == '\n'
+          @line += 1
+          @column = 0
+      else
+        @column += 1
+      end
 
-        @last_char
+      @last_char
     end
 
 
     def each
-      begin
-        while true
-          yield self.get_next_char
-        end
-      rescue EOFError
-        nil
+      while true
+        yield self.get_next_char
       end
     end
 

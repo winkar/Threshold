@@ -13,13 +13,21 @@ module Threshold
     def get_next_token
 
       first_char = @scanner.last_char
+      if first_char.nil?
+        return Token.new(:EOF)
+      end
+
       while @scanner.last_char.is_space?
-        first_char = @scanner.take(1).to_a[0]
+        begin
+          first_char = @scanner.take(1)
+        rescue EOFError
+          return Token.new(:EOF)
+        end
       end
 
       # Identifier: [a-zA-Z_][a-zA-z0-9_]*
       if first_char.is_alpha? || first_char == '_'
-        identifierStr = first_char + @scanner.take_while {|c| c.is_alpha_numeric? || c=='_'} .to_a.join('')
+        identifierStr = first_char + @scanner.take_while {|c| c.is_alpha_numeric? || c=='_'} .to_a .join('')
 
         if identifierStr == 'def'
           @current_token = Token.new(:Def)
@@ -31,7 +39,7 @@ module Threshold
       # Double: [0-9]+\.[0-9]+
       # Integer: [0-9]+
       elsif first_char.is_numeric?
-        numberStr = first_char + @scanner.take_while {|c| c.is_numeric? || c=='.'}.to_a.join('')
+        numberStr = first_char + @scanner.take_while {|c| c.is_numeric? || c=='.'} .to_a .join('')
         dot_found = numberStr.scan(/\./).length
 
         if dot_found > 0
@@ -40,6 +48,12 @@ module Threshold
         else
           @current_token = Token.new(:Integer, numberStr.to_i)
         end
+
+      # Left and Right brackets
+      elsif first_char == '(' || first_char == ')'
+        @scanner.take(1)
+        @current_token = if first_char == '(' then Token.new(:LeftParenthesis) else Token.new(:RightParenthesis) end
+
 
       # Comment
       elsif first_char == '#'

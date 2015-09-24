@@ -5,6 +5,8 @@ module Threshold
     Integer = -3
     Identifier = -4
     Def = -5
+    LeftParenthesis = -6
+    RightParenthesis = -7
 
     attr_reader :type
     attr_reader :value
