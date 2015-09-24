@@ -4,6 +4,8 @@ module Threshold
   require_relative 'Scanner'
 
   class Lexer
+    attr_reader :current_token
+
     def initialize(input)
       @scanner = Scanner.new(input)
     end
@@ -20,10 +22,11 @@ module Threshold
         identifierStr = first_char + @scanner.take_while {|c| c.is_alpha_numeric? || c=='_'} .to_a.join('')
 
         if identifierStr == 'def'
-          return Token.new(:Def)
+          @current_token = Token.new(:Def)
+        else
+          @current_token = Token.new(:Identifier, identifierStr)
         end
 
-        return Token.new(:Identifier, identifierStr)
 
       # Double: [0-9]+\.[0-9]+
       # Integer: [0-9]+
@@ -33,18 +36,19 @@ module Threshold
 
         if dot_found > 0
           if dot_found > 1 then raise 'Double litral can only contain one dot.' end
-          return Token.new(:Double, numberStr.to_f)
+          @current_token = Token.new(:Double, numberStr.to_f)
         else
-          return Token.new(:Integer, numberStr.to_i)
+          @current_token = Token.new(:Integer, numberStr.to_i)
         end
 
       # Comment
       elsif first_char == '#'
         @scanner.take_until { |c| c=='\n' }
-        return get_next_char
+        @current_token =  get_next_char
       elsif first_char == nil
-        return Token.new(:EOF)
+        @current_token = Token.new(:EOF)
       end
+
     end
   end
 end
