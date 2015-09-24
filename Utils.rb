@@ -7,7 +7,7 @@ class String
   end
 
   def is_alpha_numeric?
-    self.length == 1 && self.is_alpha? && self.is_numeric?
+    self.length == 1 && (self.is_alpha? || self.is_numeric?)
   end
 
   def is_space?

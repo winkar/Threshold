@@ -16,7 +16,6 @@ module Threshold
   end
 
   class Scanner
-    # include Enumerable
 
     Enumerable.instance_methods.each do |name|
       define_method(name) do |*args, &block|
@@ -26,38 +25,33 @@ module Threshold
       end
     end
 
-    attr_reader :LastChar
-
+    attr_reader :last_char
 
 
     def initialize(infile = nil)
       @wrapper = EnumerableWrapper.new self
-      @In = infile || STDIN
-      @LastChar = ''
-      @Line = 0
-      @Column = 0
+      @in = infile || STDIN
+      @last_char = ' '
+      @line = 0
+      @column = 0
     end
 
     def get_next_char
-        @LastChar = @In.read(1)
+        @last_char = @in.read(1)
 
-        if @LastChar == nil
+        if @last_char == nil
           self.handle_eof
         end
 
-        while @LastChar.is_space? do
-            @LastChar = @In.read(1)
-        end
 
-
-        if @LastChar == '\n'
-            @Line += 1
-            @Column = 0
+        if @last_char == '\n'
+            @line += 1
+            @column = 0
         else
-          @Column += 1
+          @column += 1
         end
 
-        @LastChar
+        @last_char
     end
 
 

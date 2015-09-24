@@ -7,8 +7,8 @@ module Threshold
   class LexerTest < Test::Unit::TestCase
 
     def check_token(token, type, value=nil)
-      assert_equal(token.type, type)
-      assert_equal(token.value, value)
+      assert_equal(type, token.type)
+      assert_equal(value, token.value)
     end
 
     def test1
